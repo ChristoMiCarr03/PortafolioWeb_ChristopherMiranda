@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Agregar Contacto</title>
+    <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+    <h2>Agregar Contacto</h2>
+    <form action="../php/dashboard.php?action=add_contact" method="POST">
+        <input type="text" name="name" placeholder="Nombre contacto" required>
+        <input type="text" name="phone" placeholder="Teléfono">
+        <input type="email" name="email" placeholder="Correo">
+        <button type="submit">Agregar Contacto</button>
+    </form>
+</body>
+</html>

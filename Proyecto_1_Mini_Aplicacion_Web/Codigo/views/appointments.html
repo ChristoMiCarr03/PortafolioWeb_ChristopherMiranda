@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Agregar Cita</title>
+    <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+    <h2>Agregar Cita</h2>
+    <form action="../php/dashboard.php?action=add_appointment" method="POST">
+        <input type="number" name="contact_id" placeholder="ID Contacto" required>
+        <input type="date" name="date" required>
+        <input type="time" name="time" required>
+        <textarea name="description" placeholder="Descripción"></textarea>
+        <button type="submit">Agregar Cita</button>
+    </form>
+</body>
+</html>

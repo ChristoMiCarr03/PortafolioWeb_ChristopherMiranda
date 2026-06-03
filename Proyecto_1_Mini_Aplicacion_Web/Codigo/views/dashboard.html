@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="../assets/css/styles.css">
+</head>
+<body>
+    <main class="container">
+        <h1>Panel de usuario</h1>
+        <p class="small">Administra tus contactos y citas desde aquí.</p>
+
+        <section id="contact-form-section">
+            <h2>Agregar Contacto</h2>
+            <form id="contact-form">
+                <input type="text" name="name" placeholder="Nombre" required>
+                <input type="text" name="phone" placeholder="Teléfono">
+                <input type="email" name="email" placeholder="Correo">
+                <button type="submit">Agregar Contacto</button>
+            </form>
+            <div id="contact-msg" class="small"></div>
+        </section>
+
+        <section id="appointment-form-section">
+            <h2>Agregar Cita</h2>
+            <form id="appointment-form">
+                <label for="contact_id">Contacto:</label>
+                <select name="contact_id" id="contact_id" required>
+                    <option value="">-- Cargando contactos --</option>
+                </select>
+                <input type="date" name="date" required>
+                <input type="time" name="time" required>
+                <textarea name="description" placeholder="Descripción"></textarea>
+                <button type="submit">Agregar Cita</button>
+            </form>
+            <div id="appointment-msg" class="small"></div>
+        </section>
+
+        <section>
+            <h2>Contactos</h2>
+            <div id="contacts-list">Cargando...</div>
+        </section>
+
+        <section>
+            <h2>Citas</h2>
+            <div id="appointments-list">Cargando...</div>
+        </section>
+
+        <p><a href="../php/logout.php">Cerrar sesión</a></p>
+    </main>
+
+    <script>
+    async function fetchJSON(url, opts) {
+        const res = await fetch(url, opts);
+        const txt = await res.text();
+        try { return JSON.parse(txt); } catch(e) { return {status:'error', message: txt}; }
+    }
+
+    async function loadContacts() {
+        const out = document.getElementById('contacts-list');
+        const sel = document.getElementById('contact_id');
+        out.textContent = 'Cargando...';
+        sel.innerHTML = '<option value="">-- Selecciona contacto --</option>';
+        const data = await fetchJSON('../php/dashboard.php?action=get_contacts');
+        if (data.status === 'ok') {
+            const contacts = data.contacts;
+            if (contacts.length === 0) out.innerHTML = '<p>No hay contactos.</p>';
+            else {
+                let html = '<table><thead><tr><th>ID</th><th>Nombre</th><th>Teléfono</th><th>Correo</th></tr></thead><tbody>';
+                contacts.forEach(c => {
+                    html += `<tr><td>${c.id}</td><td>${escapeHtml(c.name)}</td><td>${escapeHtml(c.phone||'')}</td><td>${escapeHtml(c.email||'')}</td></tr>`;
+                    const opt = document.createElement('option'); opt.value = c.id; opt.textContent = `${c.name} (${c.phone||''})`;
+                    sel.appendChild(opt);
+                });
+                html += '</tbody></table>';
+                out.innerHTML = html;
+            }
+        } else {
+            out.innerHTML = `<p class="small">Error: ${escapeHtml(data.message || 'No autorizado')}</p>`;
+        }
+    }
+
+    async function loadAppointments() {
+        const out = document.getElementById('appointments-list');
+        out.textContent = 'Cargando...';
+        const data = await fetchJSON('../php/dashboard.php?action=get_appointments');
+        if (data.status === 'ok') {
+            const appts = data.appointments;
+            if (appts.length === 0) out.innerHTML = '<p>No hay citas agendadas.</p>';
+            else {
+                let html = '<table><thead><tr><th>ID</th><th>Contacto</th><th>Fecha</th><th>Hora</th><th>Descripción</th></tr></thead><tbody>';
+                appts.forEach(a => {
+                    html += `<tr><td>${a.id}</td><td>${escapeHtml(a.contact_name||'')}</td><td>${escapeHtml(a.date)}</td><td>${escapeHtml(a.time)}</td><td>${escapeHtml(a.description||'')}</td></tr>`;
+                });
+                html += '</tbody></table>';
+                out.innerHTML = html;
+            }
+        } else {
+            out.innerHTML = `<p class="small">Error: ${escapeHtml(data.message || 'No autorizado')}</p>`;
+        }
+    }
+
+    function escapeHtml(str){ return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
+
+    document.getElementById('contact-form').addEventListener('submit', async function(e){
+        e.preventDefault();
+        const form = e.target;
+        const data = new FormData(form);
+        const res = await fetchJSON('../php/dashboard.php?action=add_contact', { method: 'POST', body: data });
+        const msg = document.getElementById('contact-msg');
+        if (res.status === 'ok') {
+            msg.textContent = res.message;
+            const createdId = res.contact && res.contact.id ? String(res.contact.id) : null;
+            form.reset();
+            await loadContacts();
+            if (createdId) {
+                const sel = document.getElementById('contact_id');
+                sel.value = createdId;
+            }
+        } else {
+            msg.textContent = 'Error: ' + (res.message || '');
+        }
+    });
+
+    document.getElementById('appointment-form').addEventListener('submit', async function(e){
+        e.preventDefault();
+        const form = e.target;
+        const data = new FormData(form);
+        const res = await fetchJSON('../php/dashboard.php?action=add_appointment', { method: 'POST', body: data });
+        const msg = document.getElementById('appointment-msg');
+        if (res.status === 'ok') { msg.textContent = res.message; form.reset(); await loadAppointments(); }
+        else { msg.textContent = 'Error: ' + (res.message || ''); }
+    });
+
+    // initial load
+    (async ()=>{ await loadContacts(); await loadAppointments(); })();
+    </script>
+</body>
+</html>
