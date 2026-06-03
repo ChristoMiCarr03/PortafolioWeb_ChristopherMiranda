@@ -1,11 +1,12 @@
 Portafolio de Proyectos — Desarrollo de Aplicaciones Web
 
-Alumno Christopher Ivan Miranda Carranza
-Materia de Desarrollo de Aplicaciones Web
-Docente Ingeniero Jesus Salas Marin
-10mo Semestre
+* Alumno Christopher Ivan Miranda Carranza
+* Materia de Desarrollo de Aplicaciones Web
+* Docente Ingeniero Jesus Salas Marin
+* 10mo Semestre
 
 Descripcion General
+
 Este portafolio es un espacio digital que compila mis mejores trabajos, evidencias de proyectos reales y simulaciones de entornos de software. El objetivo principal es demostrar mi evolución técnica, mi capacidad para adoptar arquitecturas modernas y mi enfoque en la creación de soluciones eficientes, limpias y escalables para el sector tecnológico y de gestión.
 
 Tecnologías Utilizadas
